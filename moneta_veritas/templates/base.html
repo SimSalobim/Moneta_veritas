@@ -1,3 +1,4 @@
+<!-- template/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -11,12 +12,258 @@
   </head>
   <body>
     {% include "includes/header.html" %}
-    <main class="main-content pt-4">       
+    <main class="main-content pt-4">
       <div class="container">
         {% block content %}
         {% endblock %}
       </div>
     </main>
-    {% include "includes/footer.html" %}   
+    {% include "includes/footer.html" %}
+
+    <!-- Подключаем Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Подключение модального окна авторизации -->
+    {% include "includes/auth_modal.html" %}
+
+    <script>
+// Глобальные переменные для управления состоянием
+let currentUsername = '';
+
+// Функции управления формами
+function openAuthModal() {
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+    authModal.show();
+    showCheckUserForm();
+}
+
+function showCheckUserForm() {
+    document.getElementById('checkUserForm').style.display = 'block';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('username').focus();
+    currentUsername = '';
+}
+
+function showLoginForm(username) {
+    document.getElementById('checkUserForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('loginUsername').value = username;
+    document.getElementById('password').value = '';
+    document.getElementById('password').focus();
+    currentUsername = username;
+}
+
+function showRegisterForm(username) {
+    document.getElementById('checkUserForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('regUsername').value = username;
+    document.getElementById('regPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    document.getElementById('regPassword').focus();
+    currentUsername = username;
+}
+
+function showLoading() {
+    document.getElementById('checkUserForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loadingIndicator').style.display = 'block';
+}
+
+// Вспомогательные функции
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function showMessage(message, isError = false) {
+    if (isError) {
+        alert('Ошибка: ' + message);
+    } else {
+        alert(message);
+    }
+}
+
+// Обработчик формы проверки пользователя
+document.getElementById('checkUserFormElement')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+
+    if (!username) {
+        showMessage('Введите логин', true);
+        return;
+    }
+
+    showLoading();
+
+    fetch('/auth/check-user/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({username: username})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.exists) {
+            showLoginForm(username);
+        } else {
+            showRegisterForm(username);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showCheckUserForm();
+        showMessage('Ошибка при проверке пользователя', true);
+    });
+});
+
+// Обработчик формы входа
+document.getElementById('loginFormElement')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('password').value;
+
+    if (!password) {
+        showMessage('Введите пароль', true);
+        return;
+    }
+
+    showLoading();
+
+    fetch('/auth/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+            location.reload(); // Перезагружаем страницу для обновления хедера
+        } else {
+            showLoginForm(username);
+            showMessage(data.error || 'Ошибка входа', true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showLoginForm(username);
+        showMessage('Ошибка при входе', true);
+    });
+});
+
+// Обработчик формы регистрации
+document.getElementById('registerFormElement')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    // Валидация на клиенте
+    if (!password) {
+        showMessage('Введите пароль', true);
+        return;
+    }
+
+    if (password.length < 8) {
+        showMessage('Пароль должен содержать не менее 8 символов', true);
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showMessage('Пароли не совпадают', true);
+        return;
+    }
+
+    showLoading();
+
+    fetch('/auth/register/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            confirm_password: confirmPassword
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+            location.reload(); // Перезагружаем страницу для обновления хедера
+        } else {
+            showRegisterForm(username);
+            showMessage(data.error || 'Ошибка регистрации', true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showRegisterForm(username);
+        showMessage('Ошибка при регистрации', true);
+    });
+});
+
+// Обработчик выхода
+document.getElementById('logoutForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    fetch('/auth/logout/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('#logoutForm [name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        location.reload();
+    });
+});
+
+// Сброс формы при закрытии модального окна
+document.getElementById('authModal')?.addEventListener('hidden.bs.modal', function() {
+    showCheckUserForm();
+});
+
+// Автофокус на поле ввода при открытии модального окна
+document.getElementById('authModal')?.addEventListener('shown.bs.modal', function() {
+    document.getElementById('username').focus();
+});
+</script>
   </body>
 </html>

@@ -48,10 +48,10 @@ class Mint(models.Model):
 
 class CollectibleItem(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Категория')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     description = models.TextField(blank=True, verbose_name='Описание')
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name='Страна')
-    year = models.IntegerField(blank=True, verbose_name='Год')
+    year = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=True, verbose_name='Опубликовано')
@@ -64,16 +64,16 @@ class CollectibleItem(models.Model):
 class Coin(CollectibleItem):
     
     # Специфичные поля для монет
-    denomination = models.CharField(max_length=50, verbose_name='Номинал')  # Номинал (1 рубль, 50 копеек)
-    currency = models.CharField(max_length=50, default='RUB', blank=True, null=True, help_text='Например RUB, USD, EUR')
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)  # Золото, серебро, медь и т.д.
-    weight = models.DecimalField(max_digits=8, decimal_places=3, help_text="В граммах", blank=True, null=True)  # Вес
-    mint = models.ForeignKey(Mint, on_delete=models.CASCADE, blank=True, null=True) #Монетный двор
+    denomination = models.CharField(max_length=50)  # Номинал (1 рубль, 50 копеек)
+    currency = models.CharField(max_length=50, default='RUB')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)  # Золото, серебро, медь и т.д.
+    weight = models.DecimalField(max_digits=8, decimal_places=3, help_text="В граммах")  # Вес
+    mint = models.ForeignKey(Mint, on_delete=models.CASCADE) #Монетный двор
 
 
     class Meta:
         verbose_name = 'монета'
-        verbose_name_plural = 'монет(ы)'
+        verbose_name_plural = 'монеты'
     
     def __str__(self):
         return self.name
@@ -82,13 +82,13 @@ class Coin(CollectibleItem):
 class Banknote(CollectibleItem):
     
     # Специфичные поля для банкнот
-    denomination = models.CharField(max_length=50, verbose_name='Номинал')  # Номинал
-    currency = models.CharField(max_length=50, default='RUB', blank=True, null=True)
+    denomination = models.CharField(max_length=50)  # Номинал
+    currency = models.CharField(max_length=50, default='RUB')
     
 
     class Meta:
         verbose_name = 'банкнота'
-        verbose_name_plural = 'банкнот(ы)'
+        verbose_name_plural = 'банкноты'
     
     def __str__(self):
         return self.name

@@ -1,0 +1,77 @@
+<div id="authModal" class="modal fade" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="authModalLabel">Вход или регистрация</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Форма проверки пользователя -->
+        <div id="checkUserForm">
+          <form id="checkUserFormElement">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="username" class="form-label">Логин</label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="Введите ваш логин" required>
+              <div class="form-text">Введите ваш логин для входа или регистрации</div>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Продолжить</button>
+          </form>
+        </div>
+
+        <!-- Форма входа -->
+        <div id="loginForm" style="display: none;">
+          <h6 class="mb-3">Вход в систему</h6>
+          <form id="loginFormElement">
+            {% csrf_token %}
+            <input type="hidden" id="loginUsername" name="username">
+            <div class="mb-3">
+              <label for="password" class="form-label">Пароль</label>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Войти</button>
+          </form>
+          <div class="text-center mt-3">
+            <a href="#" class="text-decoration-none auth-switch" onclick="showCheckUserForm()">
+              <small>Войти под другим логином</small>
+            </a>
+          </div>
+        </div>
+
+        <!-- Форма регистрации -->
+        <div id="registerForm" style="display: none;">
+          <h6 class="mb-3">Регистрация</h6>
+          <form id="registerFormElement">
+            {% csrf_token %}
+            <input type="hidden" id="regUsername" name="username">
+            <div class="mb-3">
+              <label for="regPassword" class="form-label">Пароль</label>
+              <input type="password" class="form-control" id="regPassword" name="password" placeholder="Придумайте пароль" required>
+              <div class="form-text">Пароль должен содержать не менее 8 символов</div>
+            </div>
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirm_password" placeholder="Повторите пароль" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Зарегистрироваться</button>
+          </form>
+          <div class="text-center mt-3">
+            <a href="#" class="text-decoration-none auth-switch" onclick="showCheckUserForm()">
+              <small>Войти под другим логином</small>
+            </a>
+          </div>
+        </div>
+
+        <!-- Индикатор загрузки -->
+        <div id="loadingIndicator" class="text-center" style="display: none;">
+          <div class="spinner-border text-gold" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+          </div>
+          <p class="mt-2">Обработка запроса...</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
