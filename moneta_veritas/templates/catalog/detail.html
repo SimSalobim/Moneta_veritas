@@ -2,14 +2,14 @@
 {% load static %}
 {% block content %}
   {% if coin %}
-    <h1 class="pb-2 mb-0">{{ coin.name }}</h1>  
+    <h1 class="pb-2 mb-0">{{ coin.name }}</h1>
     <div class="row mt-3">
       <div class="col-12 col-md-6">
         <h2>Описание</h2>
         <p>{{ coin.description }}</p>
         {% if coin.category %}
           <p>Категория: {{ coin.category.title }}</p>
-        {% endif %}     
+        {% endif %}
         <h4>
           <span class="badge bg-secondary">{{ coin.denomination }} {{ coin.currency }}</span>
         </h4>
@@ -22,29 +22,43 @@
         {% if coin.mint %}
           <p>Монетный двор: {{ coin.mint.title }}</p>
         {% endif %}
-      </div> 
+      </div>
       <div class="col-12 col-md-6 mb-3">
-        <img class="img-fluid" src="{% static 'img/image-holder.png' %}">      
+        <img class="img-fluid" src="{% static 'img/image-holder.png' %}">
       </div>
     </div>
   {% elif banknote %}
-    <h1 class="pb-2 mb-0">{{ banknote.name }}</h1>  
+    <h1 class="pb-2 mb-0">{{ banknote.name }}</h1>
     <div class="row mt-3">
       <div class="col-12 col-md-6">
         <h2>Описание</h2>
         <p>{{ banknote.description }}</p>
         {% if banknote.category %}
           <p>Категория: {{ banknote.category.title }}</p>
-        {% endif %}     
+        {% endif %}
         <h4>
           <span class="badge bg-secondary">{{ banknote.denomination }} {{ banknote.currency }}</span>
         </h4>
         <p>Страна: {{ banknote.country.title }}</p>
         <p>Год: {{ banknote.year }}</p>
-      </div> 
+      </div>
       <div class="col-12 col-md-6 mb-3">
-        <img class="img-fluid" src="{% static 'img/image-holder.png' %}">      
+        <img class="img-fluid" src="{% static 'img/image-holder.png' %}">
       </div>
     </div>
   {% endif %}
+<h1 class="pb-2 mb-0">{{ souvenir.title }}</h1>
+<div class="row mt-3">
+  <div class="col-12 col-md-6">
+  <h2>Описание</h2>
+  <p>{{ souvenir.description }}</p>
+</div>
+<div class="col-12 col-md-6 mb-3">
+  <img
+    class="img-fluid"
+    height="400" width="300"
+    src="{% static 'img/image-holder.png' %}"
+  >
+</div>
+</div>
 {% endblock %}
